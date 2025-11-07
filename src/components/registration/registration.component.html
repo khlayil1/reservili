@@ -1,0 +1,160 @@
+<div class="flex items-center justify-center min-h-full">
+  <div class="w-full max-w-lg p-8 space-y-8 bg-white shadow-xl rounded-2xl m-4 animate-fade-in">
+    <!-- Header -->
+    <div class="text-center">
+      <div class="flex-shrink-0 flex items-center justify-center gap-2 text-3xl font-bold text-teal-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-9 h-9">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M12 12.75h.008v.008H12v-.008Z" />
+        </svg>
+        <span>Reservili</span>
+      </div>
+      <h2 class="mt-4 text-2xl font-bold tracking-tight text-slate-800">Create Your Account</h2>
+    </div>
+
+    @switch (step()) {
+      <!-- Step 1: Role Selection -->
+      @case ('roleSelection') {
+        <div class="space-y-6 animate-fade-in-fast">
+          <p class="text-center text-slate-600">First, tell us who you are. Are you looking to book services or provide them?</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button (click)="selectRole(userRole.Customer)" class="group flex flex-col items-center justify-center p-6 border-2 border-slate-200 rounded-xl hover:border-teal-500 hover:bg-teal-50 transition-all duration-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-500 group-hover:text-teal-600 transition-colors" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0118 15v3h-2z" />
+              </svg>
+              <span class="mt-3 text-lg font-semibold text-slate-800">I'm a Customer</span>
+              <span class="text-sm text-slate-500">I want to book services</span>
+            </button>
+            <button (click)="selectRole(userRole.ServiceProvider)" class="group flex flex-col items-center justify-center p-6 border-2 border-slate-200 rounded-xl hover:border-teal-500 hover:bg-teal-50 transition-all duration-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-500 group-hover:text-teal-600 transition-colors" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              </svg>
+              <span class="mt-3 text-lg font-semibold text-slate-800">I'm a Business Owner</span>
+              <span class="text-sm text-slate-500">I want to offer services</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Step 2: Account Form -->
+      @case ('form') {
+        <div class="animate-fade-in-fast">
+          <div class="flex items-center mb-4">
+            <button (click)="goToPreviousStep()" class="flex items-center text-sm font-medium text-slate-600 hover:text-teal-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+              Back
+            </button>
+          </div>
+          <form #accountForm="ngForm" (ngSubmit)="handleAccountSubmit()" class="space-y-4">
+            <div>
+              <label for="name" class="block text-sm font-medium text-slate-700">Full Name</label>
+              <input type="text" id="name" name="name" [(ngModel)]="formData().name" required #name="ngModel" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" [class.border-red-500]="name.invalid && name.touched" [class.border-slate-300]="name.valid || name.untouched">
+              @if (name.invalid && name.touched) {
+                <p class="text-xs text-red-600 mt-1">Full Name is required.</p>
+              }
+            </div>
+            <div>
+              <label for="email" class="block text-sm font-medium text-slate-700">Email Address</label>
+              <input type="email" id="email" name="email" [(ngModel)]="formData().email" required email #email="ngModel" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" [class.border-red-500]="email.invalid && email.touched" [class.border-slate-300]="email.valid || email.untouched">
+              @if (email.invalid && email.touched) {
+                <p class="text-xs text-red-600 mt-1">Please enter a valid email address.</p>
+              }
+            </div>
+            <div>
+              <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
+              <input type="password" id="password" name="password" [(ngModel)]="formData().password" required minlength="6" #password="ngModel" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" [class.border-red-500]="password.invalid && password.touched" [class.border-slate-300]="password.valid || password.untouched">
+              @if (password.invalid && password.touched) {
+                <p class="text-xs text-red-600 mt-1">Password must be at least 6 characters.</p>
+              }
+            </div>
+             <div>
+              <label for="confirmPassword" class="block text-sm font-medium text-slate-700">Confirm Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="formData().confirmPassword" required #confirmPassword="ngModel" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" [class.border-red-500]="(confirmPassword.touched && confirmPassword.value !== password.value) || (confirmPassword.invalid && confirmPassword.touched)" [class.border-slate-300]="(confirmPassword.untouched || confirmPassword.value === password.value)">
+               @if (confirmPassword.touched && confirmPassword.value !== password.value) {
+                <p class="text-xs text-red-600 mt-1">Passwords do not match.</p>
+              }
+            </div>
+            <button type="submit" [disabled]="accountForm.invalid || (password.value !== confirmPassword.value)" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:bg-teal-300 transition-colors">
+              {{ selectedRole() === userRole.Customer ? 'Create Account' : 'Next: Business Details' }}
+            </button>
+          </form>
+        </div>
+      }
+
+      <!-- Step 3: Business Profile Form -->
+      @case ('businessProfile') {
+         <div class="animate-fade-in-fast">
+            <div class="flex items-center mb-4">
+              <button (click)="goToPreviousStep()" class="flex items-center text-sm font-medium text-slate-600 hover:text-teal-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+                Back
+              </button>
+            </div>
+           <form #profileForm="ngForm" (ngSubmit)="completeRegistration()" class="space-y-4">
+              <div>
+                <label for="businessName" class="block text-sm font-medium text-slate-700">Business Name</label>
+                <input type="text" id="businessName" name="businessName" [(ngModel)]="formData().provider.name" required #businessName="ngModel" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" [class.border-red-500]="businessName.invalid && businessName.touched" [class.border-slate-300]="businessName.valid || businessName.untouched">
+                 @if (businessName.invalid && businessName.touched) {
+                   <p class="text-xs text-red-600 mt-1">Business Name is required.</p>
+                 }
+              </div>
+              <div>
+                <label for="category" class="block text-sm font-medium text-slate-700">Category</label>
+                <select id="category" name="category" [(ngModel)]="formData().provider.category" required #category="ngModel" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" [class.border-red-500]="category.invalid && category.touched" [class.border-slate-300]="category.valid || category.untouched">
+                  <option value="" disabled>Select a category</option>
+                  <option>Barbershop</option>
+                  <option>Sports</option>
+                  <option>Medical</option>
+                  <option>Restaurant</option>
+                  <option>Wellness</option>
+                  <option>Specialty</option>
+                </select>
+                @if (category.invalid && category.touched) {
+                   <p class="text-xs text-red-600 mt-1">Please select a category.</p>
+                 }
+              </div>
+               <div>
+                <label for="location" class="block text-sm font-medium text-slate-700">Location</label>
+                <input type="text" id="location" name="location" [(ngModel)]="formData().provider.location" required #location="ngModel" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" [class.border-red-500]="location.invalid && location.touched" [class.border-slate-300]="location.valid || location.untouched">
+                 @if (location.invalid && location.touched) {
+                   <p class="text-xs text-red-600 mt-1">Location is required.</p>
+                 }
+              </div>
+               <div>
+                <label for="description" class="block text-sm font-medium text-slate-700">Description</label>
+                <textarea id="description" name="description" [(ngModel)]="formData().provider.description" rows="3" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"></textarea>
+              </div>
+               <div>
+                 <label class="block text-sm font-medium text-slate-700">Profile Image</label>
+                 <div class="mt-1 flex items-center gap-4">
+                  @if (formData().provider.imageUrl) {
+                    <img [src]="formData().provider.imageUrl" alt="Generated profile image" class="h-16 w-16 rounded-lg object-cover">
+                  } @else {
+                    <div class="h-16 w-16 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                    </div>
+                  }
+                   <button type="button" (click)="generateRandomImage()" class="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-100 rounded-md hover:bg-teal-200">
+                     {{ formData().provider.imageUrl ? 'Generate New Image' : 'Generate Image' }}
+                   </button>
+                 </div>
+                 <p class="text-xs text-slate-500 mt-1">This is a placeholder. In a real app, you would upload an image.</p>
+               </div>
+
+              <button type="submit" [disabled]="profileForm.invalid" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:bg-teal-300 transition-colors">
+                Complete Registration
+              </button>
+           </form>
+         </div>
+      }
+    }
+    
+     <div class="text-center mt-4">
+      <p class="text-sm text-slate-600">
+        Already have an account? 
+        <button (click)="onNavigateToLogin()" class="font-medium text-teal-600 hover:text-teal-500">
+          Log In
+        </button>
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,112 @@
+<div class="space-y-24">
+  <!-- Hero Section -->
+  <div class="text-center relative -mt-4 overflow-hidden rounded-xl shadow-lg p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-teal-50 to-cyan-100">
+     <div class="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-white/30 rounded-full filter blur-3xl opacity-50"></div>
+     <div class="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-teal-500/10 rounded-full filter blur-3xl opacity-50"></div>
+    <div class="relative z-10">
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight">
+        Book <span class="text-teal-600">Anything</span>, Anytime, Anywhere.
+      </h1>
+      <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">
+        From haircuts to padel courts, Reservili is your one-stop platform for booking services and venues with ease.
+      </p>
+      <div class="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3">
+        <input #searchInput type="text" placeholder="e.g., 'haircut' or 'The Dapper Cut'" (keyup.enter)="onSearch(searchInput)" class="w-full px-5 py-3 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+        <button (click)="onSearch(searchInput)" class="w-full sm:w-auto px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-transform transform hover:scale-105">
+          Search
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Rated Services Section -->
+  <div>
+    <h2 class="text-3xl font-bold text-center text-slate-800 mb-8">Top Rated Services</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (provider of featuredProviders; track provider.id) {
+        <div (click)="onSelectProvider(provider)" class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer flex flex-col">
+          <img class="h-56 w-full object-cover" [src]="provider.imageUrl" [alt]="provider.name">
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="flex-grow">
+              <div class="uppercase tracking-wide text-sm text-teal-600 font-semibold">{{ provider.category }}</div>
+              <p class="block mt-1 text-lg leading-tight font-bold text-black">{{ provider.name }}</p>
+              <p class="mt-2 text-slate-500 text-sm">{{ provider.location }}</p>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+              <div class="flex items-center">
+                <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.955a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.287 3.955c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.175 0l-3.368 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.955a1 1 0 00-.364-1.118L2.064 9.382c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path></svg>
+                <span class="ml-2 text-slate-600 font-medium">{{ provider.rating }}</span>
+              </div>
+              <span class="text-sm font-medium text-teal-600">View Services &rarr;</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- How it works Section -->
+  <div>
+    <h2 class="text-3xl font-bold text-center text-slate-800 mb-8">Booking Made Simple</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+      <!-- Step 1 -->
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <div class="w-16 h-16 mx-auto bg-teal-100 text-teal-600 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        </div>
+        <h3 class="mt-4 text-xl font-semibold text-slate-800">1. Find Your Service</h3>
+        <p class="mt-2 text-slate-500">Search for any service or browse through our categories to find what you need.</p>
+      </div>
+      <!-- Step 2 -->
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <div class="w-16 h-16 mx-auto bg-teal-100 text-teal-600 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+        </div>
+        <h3 class="mt-4 text-xl font-semibold text-slate-800">2. Choose a Time</h3>
+        <p class="mt-2 text-slate-500">View real-time availability and select a specialist and time slot that works for you.</p>
+      </div>
+      <!-- Step 3 -->
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <div class="w-16 h-16 mx-auto bg-teal-100 text-teal-600 rounded-full flex items-center justify-center">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <h3 class="mt-4 text-xl font-semibold text-slate-800">3. Book with Ease</h3>
+        <p class="mt-2 text-slate-500">Confirm your details and your booking is instantly confirmed. It's that simple!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Section -->
+  <div>
+    <h2 class="text-3xl font-bold text-center text-slate-800 mb-8">Browse by Category</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6">
+      @for (category of categories; track category.name) {
+        <button (click)="onCategoryClick(category.name)" class="group flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer">
+          <div class="w-16 h-16 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center transition-colors duration-300 group-hover:bg-teal-600 group-hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-8 w-8">
+              @switch(category.icon) {
+                @case('scissors') {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.848 8.263c-1.223-1.223-3.207-1.223-4.43 0-1.223 1.223-1.223 3.207 0 4.43s3.207 1.223 4.43 0l7.232-7.232a4.5 4.5 0 0 0-6.364-6.364l-1.06 1.06" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.152 8.263l-7.232 7.232c1.223 1.223 3.207 1.223 4.43 0s1.223-3.207 0-4.43l-1.06-1.06a4.5 4.5 0 0 0-6.364-6.364" />
+                }
+                @case('trophy') {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9a9.75 9.75 0 1 0 15.75 0h-4.5a3 3 0 0 1-3-3h-1.5a3 3 0 0 1-3 3h-1.5a.75.75 0 0 0-.75.75v3.375c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V19.5a.75.75 0 0 0-.75-.75h-1.5a3 3 0 0 1-3-3Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 12.75V3m0 9.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0 3 0m-3.75 6.75h1.5a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 0 .75.75Z" />
+                }
+                @case('beaker') {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.622 13.16a3.375 3.375 0 0 1-1.24 0c-1.343.344-2.686.687-4.03.923a.75.75 0 0 0-.5 1.341 4.5 4.5 0 0 0 7.538 1.95 4.5 4.5 0 0 0 7.538-1.95.75.75 0 0 0-.5-1.34c-1.344-.237-2.687-.58-4.03-.924a3.375 3.375 0 0 1-1.24 0Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v10.5m-3-4.5h6" />
+                }
+                @case('building-storefront') { <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" /> }
+                @case('sparkles') { <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" /> }
+                @case('paint-brush') { <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /> }
+                @case('squares-2x2') { <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 8.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25v-2.25ZM13.5 6A2.25 2.25 0 0 1 15.75 3.75h2.25A2.25 2.25 0 0 1 20.25 6v2.25a2.25 2.25 0 0 1-2.25 2.25h-2.25A2.25 2.25 0 0 1 13.5 8.25V6ZM13.5 15.75A2.25 2.25 0 0 1 15.75 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25v2.25a2.25 2.25 0 0 1-2.25 2.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" /> }
+              }
+            </svg>
+          </div>
+          <p class="mt-4 font-semibold text-slate-700 group-hover:text-teal-600 transition-colors duration-300">{{ category.name }}</p>
+        </button>
+      }
+    </div>
+  </div>
+</div>

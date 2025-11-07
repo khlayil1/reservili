@@ -1,0 +1,79 @@
+<div [class]="currentView() === 'login' || currentView() === 'registration' ? 'flex flex-col min-h-screen bg-slate-100' : 'flex flex-col min-h-screen'">
+  @if (currentView() !== 'login' && currentView() !== 'registration') {
+    <app-header 
+      [user]="currentUser()" 
+      (navigateHome)="onNavigateHome()"
+      (navigateDashboard)="onNavigateToDashboard()"
+      (logout)="onLogout()">
+    </app-header>
+  }
+
+  <main [class]="currentView() !== 'login' && currentView() !== 'registration' ? 'flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8' : 'flex-grow'">
+    @switch (currentView()) {
+      @case ('login') {
+        <app-login 
+          (loginRequest)="onLogin($event)"
+          (navigateRegister)="onNavigateToRegister()">
+        </app-login>
+      }
+      @case ('registration') {
+        <app-registration
+          (registrationComplete)="onRegistrationComplete($event)"
+          (navigateToLogin)="onNavigateToLogin()">
+        </app-registration>
+      }
+      @case ('home') {
+        <app-home 
+          (search)="onSearch($event)" 
+          (categorySelected)="onSelectCategory($event)"
+          (providerSelected)="onSelectProvider($event)">
+        </app-home>
+      }
+      @case ('searchResults') {
+        <app-search-results 
+          [providers]="filteredProviders()" 
+          (providerSelected)="onSelectProvider($event)"
+          (navigateBack)="onNavigateHome()">
+        </app-search-results>
+      }
+      @case ('providerDetail') {
+        @if (selectedProvider(); as provider) {
+          <app-provider-detail 
+            [provider]="provider"
+            (navigateBack)="onNavigateBack()"
+            (bookingRequest)="onBookingRequest($event)"
+            (reviewAdded)="onReviewAdded($event)">
+          </app-provider-detail>
+        } @else {
+          <div class="text-center py-12">
+            <p class="text-lg text-slate-500">Provider not found. Please go back and try again.</p>
+            <button (click)="onNavigateHome()" class="mt-4 px-6 py-2 bg-teal-600 text-white rounded-lg shadow hover:bg-teal-700 transition-colors">Go Home</button>
+          </div>
+        }
+      }
+      @case ('providerDashboard') {
+        @if (loggedInProvider(); as provider) {
+          <app-provider-dashboard 
+            [provider]="provider"
+            (providerUpdated)="onProviderUpdated($event)"
+            (serviceAdded)="onServiceAdded($event)"
+            (serviceUpdated)="onServiceUpdated($event)"
+            (serviceDeleted)="onServiceDeleted($event)"
+            (workerAdded)="onWorkerAdded($event)"
+            (workerDeleted)="onWorkerDeleted($event)"
+            (blockerAdded)="onBlockerAdded($event)">
+          </app-provider-dashboard>
+        } @else {
+           <div class="text-center py-12">
+            <p class="text-lg text-slate-500">Could not load provider data. Please try again.</p>
+            <button (click)="onLogout()" class="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition-colors">Log Out</button>
+          </div>
+        }
+      }
+    }
+  </main>
+
+  @if (currentView() !== 'login' && currentView() !== 'registration') {
+    <app-footer></app-footer>
+  }
+</div>

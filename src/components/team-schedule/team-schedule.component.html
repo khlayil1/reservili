@@ -1,0 +1,84 @@
+<div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+    <!-- Left side controls -->
+    <div class="flex items-center gap-2">
+        <button (click)="changeDate(-1)" title="Previous Day" class="p-2 rounded-md bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+        </button>
+        <button (click)="changeDate(1)" title="Next Day" class="p-2 rounded-md bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+        </button>
+        <button (click)="goToToday()" [disabled]="isToday()" class="px-4 py-2 text-sm font-medium rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            Today
+        </button>
+    </div>
+
+    <!-- Center Title -->
+    <h3 class="text-lg sm:text-xl font-bold text-slate-800 text-center flex-grow sm:text-center order-first sm:order-none">
+        {{ selectedDate() | date:'fullDate' }}
+    </h3>
+
+    <!-- Right side filter -->
+    @if(provider().workers && provider().workers!.length > 1) {
+    <div class="w-full sm:w-auto">
+        <select 
+          (change)="onFilterChange($event)" 
+          class="w-full px-3 py-2 text-sm font-medium rounded-md bg-white border border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors">
+          <option value="all">All Workers</option>
+          @for(worker of provider().workers; track worker.id) {
+            <option [value]="worker.id">{{ worker.name }}</option>
+          }
+        </select>
+    </div>
+    }
+</div>
+
+
+@if (scheduleData(); as data) {
+  @if ((provider().workers ?? []).length > 0) {
+    <div class="overflow-x-auto bg-slate-50 p-4 rounded-lg border border-slate-200">
+      <div 
+        class="schedule-grid grid gap-px bg-slate-200 min-w-[600px]"
+        [style.--worker-count]="data.workerCount">
+
+        <!-- Header Row -->
+        <div class="bg-slate-100 p-2 font-semibold text-slate-600 text-sm sticky top-0 z-10 text-center">Time</div>
+        @for (worker of data.workers; track worker.id) {
+          <div class="bg-slate-100 p-2 font-semibold text-slate-600 text-sm sticky top-0 z-10 text-center">
+            <img [src]="worker.imageUrl || 'https://picsum.photos/seed/placeholder/100/100'" [alt]="worker.name" class="w-8 h-8 rounded-full mx-auto mb-1 object-cover">
+            {{ worker.name }}
+          </div>
+        }
+
+        <!-- Time and Slot Rows -->
+        @for (block of data.timeBlocks; track block.time) {
+          <!-- Time Column -->
+          <div 
+            class="p-2 text-xs font-medium text-slate-500 text-center transition-colors"
+            [class]="block.isUpcoming ? 'bg-teal-100 text-teal-800 animate-pulse' : 'bg-slate-100'">
+            {{ block.time }}
+          </div>
+          
+          <!-- Worker Columns -->
+          @for (worker of data.workers; track worker.id) {
+            @if (block.slots[worker.id]; as slot) {
+                <div [class]="'h-14 flex flex-col items-center justify-center p-1 text-center transition-colors ' + (slot.bookingId ? 'bg-red-100 border-l-4 border-red-400' : 'bg-green-100')">
+                    @if (slot.bookingId) {
+                        <p class="text-xs font-bold text-red-800 leading-tight">{{ slot.serviceName }}</p>
+                        <p class="text-[11px] text-red-700 leading-tight">w/ {{ slot.customerName }}</p>
+                    }
+                </div>
+            } @else {
+                 <div class="h-14 bg-white"></div>
+            }
+          }
+        } @empty {
+            <div class="col-span-full bg-white text-center p-8" [style.grid-column]="'1 / ' + (data.workerCount + 2)">
+                <p class="text-slate-500">This day is not configured in the weekly schedule.</p>
+            </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <p class="text-center text-slate-500 bg-slate-50 p-6 rounded-md">Add a worker to see their schedule here.</p>
+  }
+}
