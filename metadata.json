@@ -1,5 +1,8 @@
 {
   "name": "Booky",
   "description": "A universal reservation platform to book a wide variety of services and venues, from barbershops and clinics to sports facilities and restaurants.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "devServer": {
+    "proxyConfig": "proxy.conf.json"
+  }
 }
