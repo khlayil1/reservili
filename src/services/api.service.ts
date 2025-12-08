@@ -22,9 +22,15 @@ interface JWTToken {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private http = inject(HttpClient);
+  private http: HttpClient;
   // Base URL is proxied via proxy.conf.json
   private apiUrl = '/api'; 
+
+  // FIX: Move http client injection to constructor to ensure proper type inference.
+  // This resolves a cascade of type errors where `this.http` was being inferred as `unknown`.
+  constructor() {
+    this.http = inject(HttpClient);
+  }
 
   // --- Mappers ---
   // Maps backend DTOs to frontend models to avoid changing components.
@@ -47,18 +53,25 @@ export class ApiService {
   }
 
   // --- Auth ---
-  login(email: string, password: string): Observable<User> {
-    // JHipster uses /api/authenticate and expects 'username'
-    // It only returns a token, so we must make a second call to /api/account
+  login(email: string, password: string): Observable<{ user: User; token: string }> {
     return this.http.post<JWTToken>(`${this.apiUrl}/authenticate`, { username: email, password, rememberMe: false }).pipe(
-      // Assuming token is handled by an interceptor/cookie, now fetch account details
-      switchMap(() => this.http.get<AdminUserDTO>(`${this.apiUrl}/account`)),
-      map(this.mapAdminUserDtoToUser)
+      switchMap(tokenData => {
+        const token = tokenData.id_token;
+        // Manually add the header for the immediate subsequent call, as the interceptor
+        // relies on the token being stored, which happens after this chain completes.
+        return this.http.get<AdminUserDTO>(`${this.apiUrl}/account`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).pipe(
+          map(userDto => ({
+            user: this.mapAdminUserDtoToUser(userDto),
+            token: token
+          }))
+        );
+      })
     );
   }
 
   register(payload: RegistrationPayload): Observable<{ user: User; token: string }> {
-    // This now becomes a multi-step process for providers
     const userPayload = {
       login: payload.email,
       email: payload.email,
@@ -69,42 +82,56 @@ export class ApiService {
       authorities: [payload.role === UserRole.ServiceProvider ? 'ROLE_PROVIDER' : 'ROLE_USER']
     };
 
-    // Step 1: Register the user
-    const registerUser$ = this.http.post<any>(`${this.apiUrl}/register`, userPayload);
+    // Step 1: Register the user. Returns 201 on success.
+    return this.http.post<void>(`${this.apiUrl}/register`, userPayload).pipe(
+      // Step 2: Log in to get a token.
+      switchMap(() => this.http.post<JWTToken>(`${this.apiUrl}/authenticate`, { username: payload.email, password: payload.password })),
+      switchMap(tokenData => {
+        const token = tokenData.id_token;
+        const headers = { Authorization: `Bearer ${token}` };
 
-    return registerUser$.pipe(
-      switchMap((registeredUser) => {
-        // Step 2: Log in to get a token for the next step
-        return this.http.post<JWTToken>(`${this.apiUrl}/authenticate`, { username: payload.email, password: payload.password }).pipe(
-          switchMap(token => {
-            if (payload.role === UserRole.ServiceProvider && payload.provider) {
-              // Step 3: Create the service provider profile
+        // Step 3: Fetch the newly created user's account details
+        const getAccount$ = this.http.get<AdminUserDTO>(`${this.apiUrl}/account`, { headers });
+
+        if (payload.role === UserRole.ServiceProvider && payload.provider) {
+          // Step 4 (for providers): Create the service provider profile
+          return getAccount$.pipe(
+            switchMap(userDto => {
               const providerPayload = {
                 ...payload.provider,
-                owner: { id: registeredUser.id, login: registeredUser.login }
+                owner: { id: userDto.id, login: userDto.login }
               };
-              return this.http.post<ServiceProvider>(`${this.apiUrl}/service-providers`, providerPayload).pipe(
+              return this.http.post<ServiceProvider>(`${this.apiUrl}/service-providers`, providerPayload, { headers }).pipe(
                 map(() => ({
-                  user: this.mapAdminUserDtoToUser({ ...registeredUser, firstName: userPayload.firstName, lastName: userPayload.lastName }),
-                  token: token.id_token
+                  user: this.mapAdminUserDtoToUser(userDto),
+                  token: token
                 }))
               );
-            }
-            // For customers, we are done after login
-            return of({
-              user: this.mapAdminUserDtoToUser({ ...registeredUser, firstName: userPayload.firstName, lastName: userPayload.lastName }),
-              token: token.id_token
-            });
-          })
-        );
+            })
+          );
+        } else {
+          // For customers, just return the account details
+          return getAccount$.pipe(
+            map(userDto => ({
+              user: this.mapAdminUserDtoToUser(userDto),
+              token: token
+            }))
+          );
+        }
       })
+    );
+  }
+  
+  getAccount(): Observable<User> {
+    // This call will be intercepted and have the token added automatically.
+    return this.http.get<AdminUserDTO>(`${this.apiUrl}/account`).pipe(
+        map(this.mapAdminUserDtoToUser)
     );
   }
 
   updateUser(user: User): Observable<User> {
     const [firstName, ...lastNameParts] = user.name.split(' ');
     const payload: Partial<AdminUserDTO> = {
-      id: user.id,
       login: user.email,
       firstName: firstName,
       lastName: lastNameParts.join(' '),
