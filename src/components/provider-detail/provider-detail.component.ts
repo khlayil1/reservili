@@ -1,9 +1,11 @@
-import { Component, ChangeDetectionStrategy, input, output, signal, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { ServiceProvider, Service, AvailabilitySlot, Worker, Booking, Review, User } from '../../models/reservili.model';
-import { DataService } from '../../services/data.service';
+import { ApiService } from '../../services/api.service';
 import { UserService } from '../../services/user.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 interface BookingDetails {
   provider: ServiceProvider;
@@ -16,7 +18,7 @@ interface BookingDetails {
   selector: 'app-provider-detail',
   templateUrl: './provider-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DatePipe, FormsModule],
+  imports: [CommonModule, DatePipe, FormsModule, TranslatePipe],
 })
 export class ProviderDetailComponent {
   provider = input.required<ServiceProvider>();
@@ -30,7 +32,7 @@ export class ProviderDetailComponent {
   }>();
   reviewAdded = output<Omit<Review, 'id' | 'date'>>();
 
-  private dataService = inject(DataService);
+  private apiService = inject(ApiService);
   userService = inject(UserService);
 
   selectedService = signal<Service | null>(null);
@@ -39,15 +41,49 @@ export class ProviderDetailComponent {
   calendarStartDate = signal(new Date());
   selectedDate = signal(new Date());
 
+  availableSlots = signal<AvailabilitySlot[]>([]);
+  isLoadingSlots = signal(false);
+
   bookingDetails = signal<BookingDetails | null>(null);
   showConfirmation = signal(false);
   isBooking = signal(false);
   
-  // Review state
   isReviewModalOpen = signal(false);
   newReview = signal({ rating: 5, comment: '', workerId: '' });
 
-  currentUser = this.userService.currentUser;
+  constructor() {
+    effect(() => {
+        const prov = this.provider();
+        const date = this.selectedDate();
+        if (this.canProceedToBooking()) {
+           this.loadAvailableSlots(prov.id, date);
+        } else {
+           this.availableSlots.set([]);
+        }
+    }, { allowSignalWrites: true });
+  }
+
+  async loadAvailableSlots(providerId: string, date: Date) {
+    this.isLoadingSlots.set(true);
+    try {
+        const dateString = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        const slots = await firstValueFrom(this.apiService.getAvailability(providerId, dateString));
+        
+        const worker = this.selectedWorker();
+        if (worker) { // Provider has workers, and one is selected
+            this.availableSlots.set(slots.filter(slot => !slot.isBooked && slot.workerId === worker.id));
+        } else if (!this.provider().workers || this.provider().workers!.length === 0) { // Provider has no workers
+            this.availableSlots.set(slots.filter(slot => !slot.isBooked && !slot.workerId));
+        } else {
+            this.availableSlots.set([]);
+        }
+    } catch(e) {
+        console.error("Failed to load slots", e);
+        this.availableSlots.set([]);
+    } finally {
+        this.isLoadingSlots.set(false);
+    }
+  }
 
   availableWorkersForService = computed(() => {
     const prov = this.provider();
@@ -85,22 +121,6 @@ export class ProviderDetailComponent {
     const startDate = new Date(this.calendarStartDate());
     startDate.setHours(0, 0, 0, 0);
     return startDate > today;
-  });
-
-  availableSlots = computed(() => {
-    const prov = this.provider();
-    const date = this.selectedDate();
-    const allSlotsForDay = this.dataService.generateSlotsForProviderForDay(prov, date);
-
-    if (!this.canProceedToBooking()) return [];
-
-    const worker = this.selectedWorker();
-    if (worker) { // Provider has workers, and one is selected
-        return allSlotsForDay.filter(slot => !slot.isBooked && slot.workerId === worker.id);
-    } else if (!prov.workers || prov.workers.length === 0) { // Provider has no workers
-        return allSlotsForDay.filter(slot => !slot.isBooked && !slot.workerId);
-    }
-    return [];
   });
   
   getFormattedTime(date: Date): string {
@@ -173,6 +193,7 @@ export class ProviderDetailComponent {
 
     this.isBooking.set(true);
     
+    // Simulate network delay
     setTimeout(() => {
       this.bookingRequest.emit({
         providerId: details.provider.id,
@@ -185,7 +206,7 @@ export class ProviderDetailComponent {
       this.isBooking.set(false);
       this.showConfirmation.set(true);
       this.bookingDetails.set(null);
-    }, 1500);
+    }, 1000);
   }
   
   onCancelBooking() {
@@ -220,7 +241,7 @@ export class ProviderDetailComponent {
   }
 
   onSubmitReview() {
-    const user = this.currentUser();
+    const user = this.userService.currentUser();
     const provider = this.provider();
     const reviewData = this.newReview();
     if (!user || !provider || !reviewData.comment) return;

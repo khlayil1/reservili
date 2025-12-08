@@ -9,6 +9,9 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  imageUrl?: string;
+  address?: string;
+  phoneNumber?: string;
 }
 
 export interface Service {

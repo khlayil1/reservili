@@ -1,30 +1,29 @@
-import { Component, ChangeDetectionStrategy, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UserRole } from '../../models/reservili.model';
+import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe, FormsModule],
 })
 export class LoginComponent {
-  loginRequest = output<UserRole>();
+  loginRequest = output<{email: string, password: string}>();
   navigateRegister = output<void>();
 
-  onLogin(role: UserRole) {
-    this.loginRequest.emit(role);
+  email = signal('');
+  password = signal('');
+
+  onLogin() {
+    this.loginRequest.emit({
+      email: this.email(),
+      password: this.password()
+    });
   }
   
   onNavigateToRegister() {
       this.navigateRegister.emit();
-  }
-
-  get customerRole() {
-    return UserRole.Customer;
-  }
-
-  get providerRole() {
-    return UserRole.ServiceProvider;
   }
 }

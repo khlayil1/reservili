@@ -1,27 +1,27 @@
 <div class="animate-fade-in relative">
   <!-- Back Button -->
   <div class="mb-6">
-    <button (click)="onGoBack()" class="flex items-center text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+    <button (click)="onGoBack()" class="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 me-2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
       </svg>
-      Back to Results
+      {{ 'providerDetail.backToResults' | translate }}
     </button>
   </div>
 
-  <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+  <div class="bg-card rounded-xl shadow-lg overflow-hidden border border-border">
     <!-- Header -->
     <div class="relative">
       <img class="h-48 sm:h-64 w-full object-cover" [src]="provider().imageUrl" [alt]="provider().name">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-      <div class="absolute bottom-0 left-0 p-6">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+      <div class="absolute bottom-0 start-0 p-6">
         <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">{{ provider().name }}</h1>
         <div class="flex items-center gap-4 mt-1">
           <p class="text-teal-300 font-semibold">{{ provider().category }}</p>
           <div class="flex items-center">
             <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.955a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.287 3.955c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.175 0l-3.368 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.955a1 1 0 00-.364-1.118L2.064 9.382c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path></svg>
-            <span class="ml-1 text-white font-bold">{{ provider().rating > 0 ? provider().rating : 'New' }}</span>
-            <span class="ml-1 text-slate-300 text-sm">({{ provider().reviews?.length ?? 0 }} reviews)</span>
+            <span class="ms-1 text-white font-bold">{{ provider().rating > 0 ? provider().rating : 'New' }}</span>
+            <span class="ms-1 text-slate-300 text-sm">({{ provider().reviews?.length ?? 0 }} {{ 'providerDetail.reviews' | translate }})</span>
           </div>
         </div>
       </div>
@@ -32,13 +32,13 @@
       <!-- Left Column: Details -->
       <div class="lg:col-span-1 space-y-6">
         <div>
-          <h3 class="text-lg font-bold text-slate-800">About</h3>
-          <p class="mt-2 text-slate-600">{{ provider().description }}</p>
+          <h3 class="text-lg font-bold text-foreground">{{ 'providerDetail.about' | translate }}</h3>
+          <p class="mt-2 text-muted-foreground">{{ provider().description }}</p>
         </div>
 
         @if (provider().galleryImages && provider().galleryImages!.length > 0) {
           <div>
-              <h3 class="text-lg font-bold text-slate-800">Gallery</h3>
+              <h3 class="text-lg font-bold text-foreground">{{ 'providerDetail.gallery' | translate }}</h3>
               <div class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
                   @for(image of provider().galleryImages; track image) {
                       <img [src]="image" alt="Business gallery image" class="h-28 w-full object-cover rounded-lg shadow-sm">
@@ -48,41 +48,41 @@
         }
 
         <div>
-          <h3 class="text-lg font-bold text-slate-800">Details</h3>
-          <ul class="mt-2 space-y-2 text-slate-600">
-            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg> {{ provider().location }}</li>
+          <h3 class="text-lg font-bold text-foreground">{{ 'providerDetail.details' | translate }}</h3>
+          <ul class="mt-2 space-y-2 text-muted-foreground">
+            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-3 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg> {{ provider().location }}</li>
           </ul>
         </div>
         
          <!-- Reviews Section -->
         <div>
           <div class="flex justify-between items-center">
-             <h3 class="text-lg font-bold text-slate-800">Reviews</h3>
-             @if (currentUser()) {
-                <button (click)="openReviewModal()" class="text-sm font-medium text-teal-600 hover:text-teal-800">Leave a Review</button>
+             <h3 class="text-lg font-bold text-foreground">{{ 'providerDetail.reviews' | translate }}</h3>
+             @if (userService.currentUser()) {
+                <button (click)="openReviewModal()" class="text-sm font-medium text-primary hover:text-primary/80">{{ 'providerDetail.leaveReview' | translate }}</button>
              }
           </div>
           <div class="mt-3 space-y-4">
             @for(review of provider().reviews; track review.id) {
-              <div class="border-t border-slate-200 pt-4">
+              <div class="border-t border-border pt-4">
                 <div class="flex items-center justify-between">
                    <div class="flex items-center">
                      @for (star of [1,2,3,4,5]; track star) {
-                       <svg [class]="'h-5 w-5 ' + (review.rating >= star ? 'text-yellow-400' : 'text-slate-300')" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.955a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.287 3.955c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.175 0l-3.368 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.955a1 1 0 00-.364-1.118L2.064 9.382c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path></svg>
+                       <svg [class]="'h-5 w-5 ' + (review.rating >= star ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600')" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.955a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.287 3.955c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.175 0l-3.368 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.955a1 1 0 00-.364-1.118L2.064 9.382c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path></svg>
                      }
                    </div>
-                   <span class="text-xs text-slate-400">{{ review.date | date:'mediumDate' }}</span>
+                   <span class="text-xs text-muted-foreground">{{ review.date | date:'mediumDate' }}</span>
                 </div>
-                <p class="mt-2 text-slate-600 text-sm">"{{ review.comment }}"</p>
-                <p class="mt-2 text-xs text-slate-500 font-medium">
+                <p class="mt-2 text-muted-foreground text-sm">"{{ review.comment }}"</p>
+                <p class="mt-2 text-xs text-foreground font-medium">
                   - {{ review.userName }} 
                   @if(review.workerName) {
-                    <span class="text-slate-400">(for {{ review.workerName }})</span>
+                    <span class="text-muted-foreground">(for {{ review.workerName }})</span>
                   }
                 </p>
               </div>
             } @empty {
-              <p class="text-sm text-slate-500 text-center bg-slate-50 py-4 rounded-md">No reviews yet.</p>
+              <p class="text-sm text-muted-foreground text-center bg-muted py-4 rounded-md">{{ 'providerDetail.noReviews' | translate }}</p>
             }
           </div>
         </div>
@@ -93,18 +93,18 @@
       <div class="lg:col-span-2 space-y-8">
         <!-- Step 1: Select Service -->
         <div>
-          <h3 class="text-lg font-bold text-slate-800 flex items-center">
-            <span class="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center mr-3 font-bold">1</span> Select a Service
+          <h3 class="text-lg font-bold text-foreground flex items-center">
+            <span class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center me-3 font-bold">1</span> {{ 'providerDetail.step1' | translate }}
           </h3>
           <div class="mt-4 space-y-3">
             @for (service of provider().services; track service.id) {
-              <button (click)="onSelectService(service)" [class]="'w-full text-left p-4 border rounded-lg transition-all duration-200 ' + (selectedService()?.id === service.id ? 'bg-teal-50 border-teal-500 ring-2 ring-teal-500' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50')">
+              <button (click)="onSelectService(service)" [class]="'w-full text-start p-4 border rounded-lg transition-all duration-200 ' + (selectedService()?.id === service.id ? 'bg-primary/10 border-primary ring-2 ring-primary' : 'bg-transparent border-border hover:border-primary/50 hover:bg-accent')">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="font-semibold text-slate-900">{{ service.name }}</p>
-                    <p class="text-sm text-slate-500">{{ service.durationMinutes }} min</p>
+                    <p class="font-semibold text-foreground">{{ service.name }}</p>
+                    <p class="text-sm text-muted-foreground">{{ service.durationMinutes }} min</p>
                   </div>
-                  <p class="font-bold text-teal-700">${{ service.price }}</p>
+                  <p class="font-bold text-primary">${{ service.price }}</p>
                 </div>
               </button>
             }
@@ -114,12 +114,12 @@
         <!-- Step 2: Select Worker -->
         @if (selectedService() && provider().workers && provider().workers!.length > 0) {
           <div class="animate-fade-in">
-            <h3 class="text-lg font-bold text-slate-800 flex items-center">
-                <span class="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center mr-3 font-bold">2</span> Select a Specialist
+            <h3 class="text-lg font-bold text-foreground flex items-center">
+                <span class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center me-3 font-bold">2</span> {{ 'providerDetail.step2' | translate }}
             </h3>
             <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
               @for (worker of availableWorkersForService(); track worker.id) {
-                <button (click)="onSelectWorker(worker)" [class]="'p-3 border rounded-lg transition-colors duration-200 text-center flex flex-col items-center gap-2 ' + (selectedWorker()?.id === worker.id ? 'bg-teal-600 text-white border-teal-600' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50')">
+                <button (click)="onSelectWorker(worker)" [class]="'p-3 border rounded-lg transition-colors duration-200 text-center flex flex-col items-center gap-2 ' + (selectedWorker()?.id === worker.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-border hover:border-primary/50 hover:bg-accent')">
                   <img [src]="worker.imageUrl || 'https://picsum.photos/seed/placeholder/100/100'" [alt]="worker.name" class="w-12 h-12 rounded-full object-cover">
                   <div>
                     <p class="font-semibold">{{ worker.name }}</p>
@@ -127,7 +127,7 @@
                   </div>
                 </button>
               } @empty {
-                 <p class="col-span-full text-center text-slate-500 bg-slate-50 p-4 rounded-md">No specialists available for this service.</p>
+                 <p class="col-span-full text-center text-muted-foreground bg-muted p-4 rounded-md">{{ 'providerDetail.noSpecialists' | translate }}</p>
               }
             </div>
           </div>
@@ -136,23 +136,23 @@
         <!-- Step 3: Choose Time -->
         @if (canProceedToBooking()) {
           <div class="animate-fade-in">
-            <h3 class="text-lg font-bold text-slate-800 flex items-center">
-                <span class="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center mr-3 font-bold">
+            <h3 class="text-lg font-bold text-foreground flex items-center">
+                <span class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center me-3 font-bold">
                   {{ (provider().workers && provider().workers!.length > 0) ? '3' : '2' }}
-                </span> Choose a Date & Time
+                </span> {{ 'providerDetail.step3' | translate }}
             </h3>
-            <p class="text-sm text-slate-500 mt-1 ml-11">Select a day, then choose an available time for {{ selectedWorker()?.name || 'this provider' }}.</p>
+            <p class="text-sm text-muted-foreground mt-1 ms-11">{{ 'providerDetail.selectTimePrompt' | translate }} {{ selectedWorker()?.name || 'this provider' }}.</p>
             
             <!-- Calendar Navigation -->
             <div class="mt-4 flex items-center justify-between">
-                <button (click)="changeWeek(-1)" [disabled]="!canGoToPreviousWeek()" class="p-2 rounded-full hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                <button (click)="changeWeek(-1)" [disabled]="!canGoToPreviousWeek()" class="p-2 rounded-full hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div class="text-center font-semibold text-slate-700">
+                <div class="text-center font-semibold text-foreground">
                     {{ calendarDays()[0] | date:'MMM d' }} - {{ calendarDays()[6] | date:'MMM d, yyyy' }}
                 </div>
-                <button (click)="changeWeek(1)" class="p-2 rounded-full hover:bg-slate-100 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                <button (click)="changeWeek(1)" class="p-2 rounded-full hover:bg-accent transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
                 </button>
             </div>
 
@@ -162,7 +162,7 @@
                 <button 
                   (click)="onSelectDate(day)"
                   [disabled]="isDateInPast(day)"
-                  [class]="'p-2 rounded-lg text-center transition-colors disabled:opacity-50 ' + (isDateSelected(day) ? 'bg-teal-600 text-white' : 'bg-slate-50 hover:bg-slate-200 disabled:hover:bg-slate-50')">
+                  [class]="'p-2 rounded-lg text-center transition-colors disabled:opacity-50 ' + (isDateSelected(day) ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-accent disabled:hover:bg-muted')">
                   <p class="text-xs font-medium">{{ day | date:'EEE' }}</p>
                   <p class="text-lg font-bold">{{ day | date:'d' }}</p>
                 </button>
@@ -171,16 +171,25 @@
             
             <!-- Available Slots -->
             <div class="mt-6">
-                <h4 class="font-semibold text-slate-800">Available Slots for {{ selectedDate() | date:'EEEE, MMM d' }}:</h4>
-                <div class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              <h4 class="font-semibold text-foreground">{{ 'providerDetail.availableSlotsFor' | translate }} {{ selectedDate() | date:'EEEE, MMM d' }}:</h4>
+              <div class="mt-4 min-h-[80px] flex items-center justify-center">
+                @if (isLoadingSlots()) {
+                  <div role="status">
+                    <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                } @else {
+                  <div class="w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                     @for (slot of availableSlots(); track slot.startTime) {
-                      <button (click)="onSelectSlot(slot)" class="px-3 py-2 border border-teal-600 text-teal-700 font-semibold rounded-md hover:bg-teal-600 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+                      <button (click)="onSelectSlot(slot)" class="px-3 py-2 border border-primary text-primary font-semibold rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring">
                         {{ getFormattedTime(slot.startTime) }}
                       </button>
                     } @empty {
-                       <p class="col-span-full text-center text-slate-500 bg-slate-50 p-4 rounded-md">No available slots for {{ selectedWorker()?.name || 'this provider' }} on this day.</p>
+                      <p class="col-span-full text-center text-muted-foreground bg-muted p-4 rounded-md">{{ 'providerDetail.noSlots' | translate }} {{ selectedWorker()?.name || 'this provider' }} {{ 'providerDetail.onThisDay' | translate }}</p>
                     }
-                </div>
+                  </div>
+                }
+              </div>
             </div>
           </div>
         }
@@ -191,24 +200,24 @@
   <!-- Booking Confirmation Modal -->
   @if (bookingDetails(); as details) {
     <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in-fast">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-        <h2 class="text-2xl font-bold text-slate-900">Confirm Your Booking</h2>
-        <div class="mt-4 space-y-3 text-slate-600 border-t border-b py-4">
-          <p><span class="font-semibold text-slate-800">Service:</span> {{ details.service.name }}</p>
+      <div class="bg-popover text-popover-foreground rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all border border-border">
+        <h2 class="text-2xl font-bold">{{ 'providerDetail.confirmBooking.title' | translate }}</h2>
+        <div class="mt-4 space-y-3 text-muted-foreground border-t border-b border-border py-4">
+          <p><span class="font-semibold text-foreground">{{ 'providerDetail.confirmBooking.service' | translate }}</span> {{ details.service.name }}</p>
           @if(details.worker) {
-            <p><span class="font-semibold text-slate-800">With:</span> {{ details.worker.name }}</p>
+            <p><span class="font-semibold text-foreground">{{ 'providerDetail.confirmBooking.with' | translate }}</span> {{ details.worker.name }}</p>
           }
-          <p><span class="font-semibold text-slate-800">Provider:</span> {{ details.provider.name }}</p>
-          <p><span class="font-semibold text-slate-800">Date:</span> {{ details.slot.startTime | date:'fullDate' }}</p>
-          <p><span class="font-semibold text-slate-800">Time:</span> {{ getFormattedTime(details.slot.startTime) }}</p>
+          <p><span class="font-semibold text-foreground">{{ 'providerDetail.confirmBooking.provider' | translate }}</span> {{ details.provider.name }}</p>
+          <p><span class="font-semibold text-foreground">{{ 'providerDetail.confirmBooking.date' | translate }}</span> {{ details.slot.startTime | date:'fullDate' }}</p>
+          <p><span class="font-semibold text-foreground">{{ 'providerDetail.confirmBooking.time' | translate }}</span> {{ getFormattedTime(details.slot.startTime) }}</p>
         </div>
         <div class="mt-6 flex justify-end gap-3">
-          <button (click)="onCancelBooking()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors">Cancel</button>
-          <button (click)="onConfirmBooking()" [disabled]="isBooking()" class="px-6 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors disabled:bg-teal-300 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]">
+          <button (click)="onCancelBooking()" class="px-4 py-2 text-sm font-medium text-foreground bg-secondary hover:bg-accent rounded-md transition-colors">{{ 'common.cancel' | translate }}</button>
+          <button (click)="onConfirmBooking()" [disabled]="isBooking()" class="px-6 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors disabled:bg-primary/50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]">
             @if (isBooking()) {
-              <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div class="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
             } @else {
-              <span>Confirm & Book</span>
+              <span>{{ 'providerDetail.confirmBooking.button' | translate }}</span>
             }
           </button>
         </div>
@@ -219,20 +228,20 @@
   <!-- Success Confirmation -->
   @if (showConfirmation()) {
     <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in-fast">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 text-center">
-        <div class="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <div class="bg-popover text-popover-foreground rounded-xl shadow-2xl w-full max-w-md p-8 text-center border border-border">
+        <div class="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 class="mt-4 text-2xl font-bold text-slate-900">Booking Confirmed!</h2>
-        <p class="mt-2 text-slate-600">Your appointment has been successfully booked. You will receive a confirmation email shortly.</p>
+        <h2 class="mt-4 text-2xl font-bold">{{ 'providerDetail.success.title' | translate }}</h2>
+        <p class="mt-2 text-muted-foreground">{{ 'providerDetail.success.desc' | translate }}</p>
         <div class="mt-6 space-y-3">
-            <button (click)="onCloseConfirmation(true)" class="w-full px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700 transition-colors">
-                Leave a Review
+            <button (click)="onCloseConfirmation(true)" class="w-full px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg shadow-md hover:bg-primary/90 transition-colors">
+                {{ 'providerDetail.success.leaveReview' | translate }}
             </button>
-            <button (click)="onCloseConfirmation()" class="w-full px-6 py-2 text-slate-700 font-medium rounded-lg hover:bg-slate-100 transition-colors">
-                Done
+            <button (click)="onCloseConfirmation()" class="w-full px-6 py-2 text-foreground font-medium rounded-lg hover:bg-accent transition-colors">
+                {{ 'providerDetail.success.done' | translate }}
             </button>
         </div>
       </div>
@@ -242,28 +251,28 @@
   <!-- Review Modal -->
   @if (isReviewModalOpen()) {
     <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in-fast">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 transform transition-all">
-        <h2 class="text-2xl font-bold text-slate-900">Leave a Review for {{ provider().name }}</h2>
+      <div class="bg-popover text-popover-foreground rounded-xl shadow-2xl w-full max-w-lg p-6 transform transition-all border border-border">
+        <h2 class="text-2xl font-bold">{{ 'providerDetail.reviewModal.title' | translate }} {{ provider().name }}</h2>
         <form #reviewForm="ngForm" (ngSubmit)="onSubmitReview()" class="mt-4 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700">Your Rating</label>
+            <label class="block text-sm font-medium text-foreground">{{ 'providerDetail.reviewModal.rating' | translate }}</label>
             <div class="mt-1 flex items-center gap-1">
               @for(star of [1,2,3,4,5]; track star) {
-                <button type="button" (click)="setReviewRating(star)" class="text-3xl transition-transform transform hover:scale-125" [class]="newReview().rating >= star ? 'text-yellow-400' : 'text-slate-300'">★</button>
+                <button type="button" (click)="setReviewRating(star)" class="text-3xl transition-transform transform hover:scale-125" [class]="newReview().rating >= star ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'">★</button>
               }
             </div>
           </div>
 
           <div>
-             <label for="reviewComment" class="block text-sm font-medium text-slate-700">Your Comments</label>
-             <textarea id="reviewComment" name="reviewComment" [(ngModel)]="newReview().comment" required rows="4" placeholder="How was your experience?" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"></textarea>
+             <label for="reviewComment" class="block text-sm font-medium text-foreground">{{ 'providerDetail.reviewModal.comments' | translate }}</label>
+             <textarea id="reviewComment" name="reviewComment" [(ngModel)]="newReview().comment" required rows="4" [placeholder]="'providerDetail.reviewModal.commentsPlaceholder' | translate" class="mt-1 block w-full px-3 py-2 border border-input bg-background rounded-md shadow-sm focus:outline-none focus:ring-ring focus:border-ring"></textarea>
           </div>
           
           @if(provider().workers && provider().workers!.length > 0) {
             <div>
-              <label for="reviewWorker" class="block text-sm font-medium text-slate-700">Review a specific worker? (Optional)</label>
-              <select id="reviewWorker" name="reviewWorker" [(ngModel)]="newReview().workerId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md">
-                <option value="">-- General Review --</option>
+              <label for="reviewWorker" class="block text-sm font-medium text-foreground">{{ 'providerDetail.reviewModal.specificWorker' | translate }}</label>
+              <select id="reviewWorker" name="reviewWorker" [(ngModel)]="newReview().workerId" class="mt-1 block w-full ps-3 pe-10 py-2 text-base border-input bg-background focus:outline-none focus:ring-ring focus:border-ring sm:text-sm rounded-md">
+                <option value="">{{ 'providerDetail.reviewModal.generalReview' | translate }}</option>
                 @for(worker of provider().workers; track worker.id) {
                   <option [value]="worker.id">{{ worker.name }} - {{ worker.role }}</option>
                 }
@@ -272,8 +281,8 @@
           }
 
           <div class="mt-6 flex justify-end gap-3">
-            <button type="button" (click)="closeReviewModal()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors">Cancel</button>
-            <button type="submit" [disabled]="reviewForm.invalid" class="px-6 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors disabled:bg-teal-300">Submit Review</button>
+            <button type="button" (click)="closeReviewModal()" class="px-4 py-2 text-sm font-medium text-foreground bg-secondary hover:bg-accent rounded-md transition-colors">{{ 'common.cancel' | translate }}</button>
+            <button type="submit" [disabled]="reviewForm.invalid" class="px-6 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors disabled:bg-primary/50">{{ 'providerDetail.reviewModal.submitButton' | translate }}</button>
           </div>
         </form>
       </div>

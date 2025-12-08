@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reservili</title>
+  <title>Booky</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.1.3/24/outline/heroicons.min.css">
   <style>
@@ -12,16 +12,105 @@
       width: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: #f1f1f1;
+      background: hsl(var(--muted));
     }
     ::-webkit-scrollbar-thumb {
-      background: #888;
+      background: hsl(var(--muted-foreground));
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #555;
+      background: hsl(var(--primary));
+    }
+
+    /* CSS Variables for Theming */
+    :root {
+      --background: 210 40% 98%;
+      --foreground: 224 71% 4%;
+      --card: 0 0% 100%;
+      --card-foreground: 224 71% 4%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 224 71% 4%;
+      --primary: 166 84% 35%;
+      --primary-foreground: 210 40% 98%;
+      --secondary: 220 14% 96%;
+      --secondary-foreground: 224 71% 4%;
+      --muted: 220 13% 91%;
+      --muted-foreground: 220 9% 46%;
+      --accent: 220 14% 96%;
+      --accent-foreground: 224 71% 4%;
+      --destructive: 0 84% 60%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 220 13% 91%;
+      --input: 220 13% 91%;
+      --ring: 166 84% 35%;
+    }
+
+    .dark {
+      --background: 220 13% 10%;
+      --foreground: 210 20% 98%;
+      --card: 220 13% 13%;
+      --card-foreground: 210 20% 98%;
+      --popover: 220 13% 13%;
+      --popover-foreground: 210 20% 98%;
+      --primary: 167 75% 40%;
+      --primary-foreground: 210 40% 98%;
+      --secondary: 220 13% 18%;
+      --secondary-foreground: 210 20% 98%;
+      --muted: 220 13% 18%;
+      --muted-foreground: 220 9% 55%;
+      --accent: 220 13% 22%;
+      --accent-foreground: 210 20% 98%;
+      --destructive: 0 72% 51%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 220 13% 22%;
+      --input: 220 13% 22%;
+      --ring: 167 75% 40%;
     }
   </style>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(var(--border))',
+            input: 'hsl(var(--input))',
+            ring: 'hsl(var(--ring))',
+            background: 'hsl(var(--background))',
+            foreground: 'hsl(var(--foreground))',
+            primary: {
+              DEFAULT: 'hsl(var(--primary))',
+              foreground: 'hsl(var(--primary-foreground))',
+            },
+            secondary: {
+              DEFAULT: 'hsl(var(--secondary))',
+              foreground: 'hsl(var(--secondary-foreground))',
+            },
+            destructive: {
+              DEFAULT: 'hsl(var(--destructive))',
+              foreground: 'hsl(var(--destructive-foreground))',
+            },
+            muted: {
+              DEFAULT: 'hsl(var(--muted))',
+              foreground: 'hsl(var(--muted-foreground))',
+            },
+            accent: {
+              DEFAULT: 'hsl(var(--accent))',
+              foreground: 'hsl(var(--accent-foreground))',
+            },
+            popover: {
+              DEFAULT: 'hsl(var(--popover))',
+              foreground: 'hsl(var(--popover-foreground))',
+            },
+            card: {
+              DEFAULT: 'hsl(var(--card))',
+              foreground: 'hsl(var(--card-foreground))',
+            },
+          },
+        },
+      },
+    }
+  </script>
 <script type="importmap">
 {
   "imports": {
@@ -35,12 +124,13 @@
     "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.3.10?external=rxjs",
     "@angular/core": "https://next.esm.sh/@angular/core@^20.3.10?external=rxjs",
     "@angular/common": "https://next.esm.sh/@angular/common@^20.3.10?external=rxjs",
+    "@angular/common/http": "https://next.esm.sh/@angular/common@^20.3.10/http?external=rxjs",
     "@angular/forms": "https://next.esm.sh/@angular/forms@^20.3.10?external=rxjs"
   }
 }
 </script>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-background text-foreground">
   <app-root></app-root>
 </body>
 </html>

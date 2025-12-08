@@ -3,7 +3,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ServiceProvider, Service, Worker, RecurringAvailability, BlockedTime, Review } from '../../models/reservili.model';
 import { TeamScheduleComponent } from '../team-schedule/team-schedule.component';
-import { DataService } from '../../services/data.service';
+import { ApiService } from '../../services/api.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 type DashboardTab = 'profile' | 'services' | 'workers' | 'availability' | 'reviews';
 
@@ -11,7 +12,7 @@ type DashboardTab = 'profile' | 'services' | 'workers' | 'availability' | 'revie
   selector: 'app-provider-dashboard',
   templateUrl: './provider-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, TeamScheduleComponent, DatePipe],
+  imports: [CommonModule, FormsModule, TeamScheduleComponent, DatePipe, TranslatePipe],
 })
 export class ProviderDashboardComponent {
   provider = input.required<ServiceProvider>();
@@ -23,7 +24,7 @@ export class ProviderDashboardComponent {
   workerDeleted = output<{ providerId: string; workerId: string }>();
   blockerAdded = output<{ providerId: string; blocker: Omit<BlockedTime, 'id'> }>();
 
-  private dataService = inject(DataService);
+  private apiService = inject(ApiService);
 
   activeTab = signal<DashboardTab>('profile');
   
@@ -51,7 +52,7 @@ export class ProviderDashboardComponent {
   deletingWorker = signal<Worker | null>(null);
   
   reviewsForProvider = computed(() => {
-    return this.dataService.getReviewsForProvider(this.provider().id);
+    return this.provider().reviews ?? [];
   });
   
   reviewsByWorker = computed(() => {
@@ -244,9 +245,12 @@ export class ProviderDashboardComponent {
     const updatedServiceIds = Object.keys(this.serviceAssignments()).filter(
       serviceId => this.serviceAssignments()[serviceId]
     );
+    
+    // Find worker in editable provider and update it
     const workerIndex = provider.workers.findIndex(w => w.id === workerToUpdate.id);
     if (workerIndex !== -1) {
       provider.workers[workerIndex].serviceIds = updatedServiceIds;
+      // Emit the full provider update
       this.providerUpdated.emit(provider);
     }
     this.editingWorkerServices.set(null);

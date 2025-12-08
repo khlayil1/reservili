@@ -1,12 +1,13 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ServiceProvider } from '../../models/reservili.model';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-search-results',
   templateUrl: './search-results.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
 })
 export class SearchResultsComponent {
   providers = input.required<ServiceProvider[]>();

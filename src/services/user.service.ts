@@ -1,34 +1,36 @@
-import { Injectable, signal } from '@angular/core';
-import { User, UserRole } from '../models/reservili.model';
+import { Injectable, signal, inject } from '@angular/core';
+import { User, UserRole, ServiceProvider } from '../models/reservili.model';
+import { ApiService } from './api.service';
+import { firstValueFrom } from 'rxjs';
+
+// In a real app, this would be part of the registration payload
+export interface RegistrationPayload {
+  name: string,
+  email: string,
+  role: UserRole,
+  password?: string,
+  provider?: Omit<ServiceProvider, 'id' | 'rating' | 'recurringAvailability' | 'services' | 'availability' | 'workers' | 'blockedTimes' | 'ownerId' | 'galleryImages'>;
+}
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  private apiService = inject(ApiService);
   currentUser = signal<User | null>(null);
 
-  // In a real app, this would be part of a user database
-  private users: User[] = [
-      { id: 'cust1', name: 'Alex Doe', email: 'alex.doe@example.com', role: UserRole.Customer },
-      { id: 'provider1', name: 'Sam Inkwell', email: 'sam.ink@example.com', role: UserRole.ServiceProvider },
-  ];
-
-  loginAsCustomer() {
-    this.currentUser.set(this.users.find(u => u.role === UserRole.Customer && u.id === 'cust1') || null);
+  async login(credentials: {email: string, password: string}) {
+    const user = await firstValueFrom(this.apiService.login(credentials.email, credentials.password));
+    this.currentUser.set(user);
   }
 
-  loginAsProvider() {
-    this.currentUser.set(this.users.find(u => u.role === UserRole.ServiceProvider && u.id === 'provider1') || null);
+  async registerUser(details: RegistrationPayload): Promise<User> {
+    const { user } = await firstValueFrom(this.apiService.register(details));
+    this.currentUser.set(user); // Log in the new user immediately
+    return user;
   }
 
-  registerUser(details: {name: string, email: string, role: UserRole, password?: string}): User {
-    const newUser: User = {
-        id: `${details.role.toLowerCase()}-${Date.now()}`,
-        name: details.name,
-        email: details.email,
-        role: details.role,
-    };
-    this.users.push(newUser);
-    this.currentUser.set(newUser); // Log in the new user immediately
-    return newUser;
+  async updateUser(user: User) {
+    const updatedUser = await firstValueFrom(this.apiService.updateUser(user));
+    this.currentUser.set(updatedUser);
   }
 
   logout() {

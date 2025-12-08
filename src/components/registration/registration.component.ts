@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, output, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserRole, ServiceProvider } from '../../models/reservili.model';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 export interface RegistrationDetails {
   name: string;
@@ -17,7 +18,7 @@ type Step = 'roleSelection' | 'form' | 'businessProfile';
   selector: 'app-registration',
   templateUrl: './registration.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
 })
 export class RegistrationComponent {
   registrationComplete = output<RegistrationDetails>();

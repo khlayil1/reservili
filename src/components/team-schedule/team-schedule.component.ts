@@ -1,7 +1,9 @@
-import { Component, ChangeDetectionStrategy, input, computed, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed, inject, signal, effect } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ServiceProvider, Worker, AvailabilitySlot, RecurringAvailability } from '../../models/reservili.model';
-import { DataService } from '../../services/data.service';
+import { firstValueFrom } from 'rxjs';
+import { ServiceProvider, Worker, AvailabilitySlot, RecurringAvailability, Booking, User, Service } from '../../models/reservili.model';
+import { ApiService } from '../../services/api.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 interface EnrichedSlotInfo extends AvailabilitySlot {
   customerName?: string;
@@ -19,7 +21,7 @@ interface TimeBlock {
   selector: 'app-team-schedule',
   templateUrl: './team-schedule.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, TranslatePipe],
   styles: [`
     .schedule-grid {
       grid-template-columns: 6rem repeat(var(--worker-count), minmax(0, 1fr));
@@ -28,83 +30,89 @@ interface TimeBlock {
 })
 export class TeamScheduleComponent {
   provider = input.required<ServiceProvider>();
-  private dataService = inject(DataService);
-  private dayNames: RecurringAvailability['dayOfWeek'][];
+  private apiService = inject(ApiService);
 
   selectedDate = signal(new Date());
   selectedWorkerId = signal<string>('all');
+  
+  // This signal will hold all schedule data for the selected day
+  scheduleData = signal<{ workers: Worker[], timeBlocks: TimeBlock[], workerCount: number }>({ workers: [], timeBlocks: [], workerCount: 0});
+  isLoading = signal(false);
 
   constructor() {
-    this.dayNames = this.dataService.getDayNames();
+    effect(() => {
+        const provider = this.provider();
+        const date = this.selectedDate();
+        this.loadScheduleForDay(provider, date);
+    });
   }
 
-  scheduleData = computed(() => {
-    const provider = this.provider();
-    const selectedDate = this.selectedDate();
-    const workerId = this.selectedWorkerId();
-
+  async loadScheduleForDay(provider: ServiceProvider, date: Date) {
     if (!provider || !provider.workers || provider.workers.length === 0) {
-      return { workers: provider.workers ?? [], timeBlocks: [], workerCount: provider.workers?.length ?? 0 };
+      this.scheduleData.set({ workers: [], timeBlocks: [], workerCount: 0 });
+      return;
     }
     
-    const filteredWorkers = workerId === 'all'
-        ? provider.workers
-        : provider.workers.filter(w => w.id === workerId);
+    this.isLoading.set(true);
 
-    const availabilityForDay = this.dataService.generateSlotsForProviderForDay(provider, selectedDate);
+    try {
+        const dateString = date.toISOString().split('T')[0];
+        const availabilityForDay = await firstValueFrom(this.apiService.getAvailability(provider.id, dateString, true));
 
-    const dayName = this.dayNames[selectedDate.getDay()];
-    const schedule = provider.recurringAvailability.find(r => r.dayOfWeek === dayName);
+        const dayNames: RecurringAvailability['dayOfWeek'][] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNames[date.getDay()];
+        const schedule = provider.recurringAvailability.find(r => r.dayOfWeek === dayName);
 
-    if (!schedule || !schedule.isEnabled) {
-        return { workers: filteredWorkers, timeBlocks: [], workerCount: filteredWorkers.length };
-    }
-
-    const allWorkers = provider.workers;
-    const { startTime, endTime } = schedule;
-    const timeBlocks: TimeBlock[] = [];
-
-    const [startHour] = startTime.split(':').map(Number);
-    const [endHour] = endTime.split(':').map(Number);
-
-    const now = new Date();
-    const upcomingThreshold = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
-    
-    // Create time blocks every 30 minutes
-    for (let h = startHour; h < endHour; h++) {
-        for (let m = 0; m < 60; m += 30) {
-            const blockDate = new Date(selectedDate);
-            blockDate.setHours(h, m, 0, 0);
-            const time = blockDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-            const isUpcoming = blockDate > now && blockDate <= upcomingThreshold;
-            
-            const block: TimeBlock = { time, blockDate, isUpcoming, slots: {} };
-            allWorkers.forEach(w => block.slots[w.id] = null); // Initialize for all workers
-            timeBlocks.push(block);
+        if (!schedule || !schedule.isEnabled) {
+            this.scheduleData.set({ workers: provider.workers, timeBlocks: [], workerCount: provider.workers.length });
+            return;
         }
-    }
-    
-    // Fill in the slots from provider availability
-    availabilityForDay.forEach(slot => {
-        const slotStart = new Date(slot.startTime);
-        
-        const blockIndex = timeBlocks.findIndex(block => block.blockDate.getTime() === slotStart.getTime());
 
-        if (blockIndex !== -1 && slot.workerId) {
-            let enrichedSlot: EnrichedSlotInfo = { ...slot };
-            if(slot.bookingId) {
-                const details = this.dataService.getBookingDetails(slot.bookingId);
-                if (details) {
-                    enrichedSlot.customerName = details.user.name.split(' ')[0]; // First name
-                    enrichedSlot.serviceName = details.service.name;
-                }
+        const { startTime, endTime } = schedule;
+        const timeBlocks: TimeBlock[] = [];
+        const [startHour] = startTime.split(':').map(Number);
+        const [endHour] = endTime.split(':').map(Number);
+        const now = new Date();
+        const upcomingThreshold = new Date(now.getTime() + 60 * 60 * 1000);
+
+        for (let h = startHour; h < endHour; h++) {
+            for (let m = 0; m < 60; m += 30) {
+                const blockDate = new Date(date);
+                blockDate.setHours(h, m, 0, 0);
+                const time = blockDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+                const isUpcoming = blockDate > now && blockDate <= upcomingThreshold;
+                const block: TimeBlock = { time, blockDate, isUpcoming, slots: {} };
+                provider.workers.forEach(w => block.slots[w.id] = null);
+                timeBlocks.push(block);
             }
-            timeBlocks[blockIndex].slots[slot.workerId] = enrichedSlot;
         }
-    });
 
-    return { workers: filteredWorkers, timeBlocks, workerCount: filteredWorkers.length };
-  });
+        availabilityForDay.forEach(slot => {
+            const slotStart = new Date(slot.startTime);
+            const blockIndex = timeBlocks.findIndex(block => block.blockDate.getTime() === slotStart.getTime());
+            if (blockIndex !== -1 && slot.workerId) {
+                timeBlocks[blockIndex].slots[slot.workerId] = slot as EnrichedSlotInfo;
+            }
+        });
+
+        const filteredWorkers = this.selectedWorkerId() === 'all'
+            ? provider.workers
+            : provider.workers.filter(w => w.id === this.selectedWorkerId());
+
+        this.scheduleData.set({
+            workers: filteredWorkers,
+            timeBlocks,
+            workerCount: filteredWorkers.length
+        });
+
+    } catch (error) {
+        console.error("Failed to load schedule data", error);
+        this.scheduleData.set({ workers: provider.workers, timeBlocks: [], workerCount: provider.workers.length });
+    } finally {
+        this.isLoading.set(false);
+    }
+  }
+
 
   changeDate(days: number): void {
     const newDate = new Date(this.selectedDate());
@@ -127,5 +135,7 @@ export class TeamScheduleComponent {
   onFilterChange(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     this.selectedWorkerId.set(selectElement.value);
+    // The effect will re-trigger the schedule generation
+    this.loadScheduleForDay(this.provider(), this.selectedDate());
   }
 }

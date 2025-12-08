@@ -1,31 +1,90 @@
-<header class="bg-white shadow-md sticky top-0 z-50">
+<header class="bg-card shadow-md sticky top-0 z-50 border-b border-border">
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <div class="flex items-center">
-        <button (click)="onHomeClick()" class="flex-shrink-0 flex items-center gap-2 text-2xl font-bold text-teal-600">
+        <button (click)="onHomeClick()" class="flex-shrink-0 flex items-center gap-2 text-2xl font-bold text-primary">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M12 12.75h.008v.008H12v-.008Z" />
           </svg>
-          <span>Reservili</span>
+          <span>Booky</span>
         </button>
       </div>
-      <div class="flex items-center">
-        @if (user(); as currentUser) {
-          <div class="flex items-center gap-4">
-            @if (currentUser.role === userRole.ServiceProvider) {
-              <button (click)="onDashboardClick()" class="px-4 py-2 text-sm font-medium text-teal-600 border border-teal-600 rounded-md hover:bg-teal-50 transition-colors hidden sm:block">
-                Dashboard
-              </button>
+      <div class="flex items-center gap-3">
+        <!-- Theme Toggle -->
+        <button (click)="toggleTheme()" class="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+          @switch (currentTheme) {
+            @case('light') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-6.364-.386 1.591-1.591M3 12H.75m.386-6.364 1.591 1.591M12 6.375a5.625 5.625 0 1 1-11.25 0 5.625 5.625 0 0 1 11.25 0Z" /></svg>
             }
-            <span class="text-sm font-medium text-slate-700 hidden sm:block">Welcome, {{ currentUser.name }}</span>
-            <div class="w-9 h-9 rounded-full bg-teal-500 flex items-center justify-center text-white font-bold text-lg">
-              {{ currentUser.name.charAt(0) }}
-            </div>
-            <button (click)="onLogoutClick()" title="Log Out" class="text-slate-500 hover:text-red-600 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+            @case('dark') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>
+            }
+            @case('system') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25Z" /></svg>
+            }
+          }
+        </button>
+        
+        <!-- Language Selector -->
+        <div class="relative">
+            <button (click)="isLangMenuOpen.set(!isLangMenuOpen())" class="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h5.25m-5.25-.75L17.25 3.75" /></svg>
+                <span class="text-sm font-medium uppercase">{{ translationService.currentLang() }}</span>
+            </button>
+            @if (isLangMenuOpen()) {
+              <div class="absolute end-0 mt-2 w-32 origin-top-right rounded-md bg-popover text-popover-foreground border border-border shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" (clickout)="isLangMenuOpen.set(false)">
+                <div class="py-1">
+                  <button (click)="changeLanguage('en')" class="block w-full px-4 py-2 text-sm text-start hover:bg-accent">{{ 'lang.en' | translate }}</button>
+                  <button (click)="changeLanguage('fr')" class="block w-full px-4 py-2 text-sm text-start hover:bg-accent">{{ 'lang.fr' | translate }}</button>
+                  <button (click)="changeLanguage('ar')" class="block w-full px-4 py-2 text-sm text-start hover:bg-accent">{{ 'lang.ar' | translate }}</button>
+                </div>
+              </div>
+            }
+        </div>
+        
+        <!-- User Menu -->
+        @if (user(); as currentUser) {
+          <div class="relative">
+            <button (click)="isUserMenuOpen.set(!isUserMenuOpen())" class="flex items-center gap-2 rounded-full hover:bg-accent p-1 pe-3 transition-colors">
+              @if (currentUser.imageUrl) {
+                <img [src]="currentUser.imageUrl" [alt]="currentUser.name" class="w-8 h-8 rounded-full object-cover">
+              } @else {
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-base">
+                  {{ currentUser.name.charAt(0) }}
+                </div>
+              }
+              <span class="text-sm font-medium text-foreground hidden sm:block">{{ currentUser.name }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-muted-foreground transition-transform" [class.rotate-180]="isUserMenuOpen()">
+                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
               </svg>
             </button>
+
+            @if (isUserMenuOpen()) {
+              <div class="absolute end-0 mt-2 w-48 origin-top-right rounded-md bg-popover text-popover-foreground border border-border shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" (clickout)="isUserMenuOpen.set(false)">
+                <div class="p-1">
+                  <div class="px-3 py-2">
+                    <p class="text-sm font-semibold truncate">{{ currentUser.name }}</p>
+                    <p class="text-xs text-muted-foreground truncate">{{ currentUser.email }}</p>
+                  </div>
+                  <div class="border-t border-border my-1"></div>
+                  @if (currentUser.role === userRole.ServiceProvider) {
+                    <button (click)="onDashboardClick()" class="w-full text-start flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h12M3.75 3h16.5M3.75 3v1.5M16.5 3v1.5m0 0v11.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V4.5m14.25 0v.75M3.75 4.5v.75m0 0h16.5m-16.5 0v3.75m0 3.75v3.75m0 0h16.5m-16.5 0h3.75m12.75 0h3.75M3.75 12h16.5" /></svg>
+                      <span>{{ 'header.dashboard' | translate }}</span>
+                    </button>
+                  }
+                  <button (click)="onProfileClick()" class="w-full text-start flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                    <span>{{ 'header.profile' | translate }}</span>
+                  </button>
+                  <div class="border-t border-border my-1"></div>
+                  <button (click)="onLogoutClick()" class="w-full text-start flex items-center gap-2 px-3 py-2 text-sm rounded-md text-destructive hover:bg-accent">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
+                    <span>{{ 'header.logout' | translate }}</span>
+                  </button>
+                </div>
+              </div>
+            }
           </div>
         }
       </div>
